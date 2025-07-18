@@ -1,10 +1,10 @@
 import { 
   DesaSettings, News, Gallery, Event, Organization, Service, 
-  ServiceSubmission, Document, Admin, ApiResponse, PaginatedResponse 
+  ServiceSubmission, Admin, ApiResponse, PaginatedResponse 
 } from '../types';
 
-// API Base URL - should be configured based on environment
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// API Base URL - points to backend server
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Helper function to make API requests
 const apiRequest = async <T>(
@@ -47,44 +47,31 @@ const apiRequest = async <T>(
 // Desa Settings Service
 export const getDesaSettings = async (): Promise<DesaSettings> => {
   try {
-    // Fallback to default settings if no data in database
-    const defaultSettings: DesaSettings = {
-      id: 1,
-      nama_desa: 'Desa Maju Sejahtera',
-      slogan: 'Menuju Desa Modern dan Sejahtera',
-      alamat: 'Jl. Desa Maju No. 123, Kecamatan Sejahtera, Kabupaten Makmur, Provinsi Jaya 12345',
-      logo: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop',
-      hero_image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop',
-      primary_color: '#3B82F6',
-      secondary_color: '#10B981',
-      deskripsi: 'Desa Maju Sejahtera adalah desa yang terletak di kawasan strategis dengan potensi alam yang melimpah. Desa ini memiliki sejarah panjang dan kaya akan budaya lokal yang masih dilestarikan hingga saat ini.',
-      created_at: new Date(),
-      updated_at: new Date()
-    };
-    
-    return defaultSettings;
+    const response = await apiRequest<ApiResponse<DesaSettings>>('/desa/settings');
+    return response.data || getDefaultSettings();
   } catch (error) {
     console.error('Error fetching desa settings:', error);
-    // Return default settings if API fails
-    return {
-      id: 0,
-      nama_desa: 'Desa Digital',
-      slogan: 'Menuju Desa Modern dan Sejahtera',
-      alamat: 'Alamat Desa',
-      logo: '',
-      hero_image: '',
-      primary_color: '#3B82F6',
-      secondary_color: '#10B981',
-      deskripsi: 'Deskripsi desa',
-      created_at: new Date(),
-      updated_at: new Date()
-    };
+    return getDefaultSettings();
   }
 };
 
+const getDefaultSettings = (): DesaSettings => ({
+  id: 0,
+  nama_desa: 'Desa Digital',
+  slogan: 'Menuju Desa Modern dan Sejahtera',
+  alamat: 'Alamat Desa',
+  logo: '',
+  hero_image: '',
+  primary_color: '#3B82F6',
+  secondary_color: '#10B981',
+  deskripsi: 'Deskripsi desa',
+  created_at: new Date(),
+  updated_at: new Date()
+});
+
 export const updateDesaSettings = async (settings: Partial<DesaSettings>): Promise<ApiResponse<DesaSettings>> => {
   try {
-    return await apiRequest<ApiResponse<DesaSettings>>('/desa-settings', {
+    return await apiRequest<ApiResponse<DesaSettings>>('/desa/settings', {
       method: 'PUT',
       body: JSON.stringify(settings),
     });
@@ -162,7 +149,9 @@ export const deleteNews = async (id: number): Promise<ApiResponse<boolean>> => {
 // Gallery Service
 export const getGalleries = async (kategori?: string): Promise<Gallery[]> => {
   try {
-    return await getGalleriesFromDB(kategori);
+    const params = kategori ? `?kategori=${encodeURIComponent(kategori)}` : '';
+    const response = await apiRequest<ApiResponse<Gallery[]>>(`/galleries${params}`);
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching galleries:', error);
     return [];
@@ -184,7 +173,8 @@ export const createGallery = async (galleryData: Partial<Gallery>): Promise<ApiR
 // Events Service
 export const getEvents = async (): Promise<Event[]> => {
   try {
-    return await apiRequest<Event[]>('/events');
+    const response = await apiRequest<ApiResponse<Event[]>>('/events');
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching events:', error);
     return [];
@@ -206,7 +196,8 @@ export const createEvent = async (eventData: Partial<Event>): Promise<ApiRespons
 // Organization Service
 export const getOrganization = async (): Promise<Organization[]> => {
   try {
-    return await apiRequest<Organization[]>('/organization');
+    const response = await apiRequest<ApiResponse<Organization[]>>('/organization');
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching organization:', error);
     return [];
@@ -228,7 +219,8 @@ export const createOrganization = async (orgData: Partial<Organization>): Promis
 // Services
 export const getServices = async (): Promise<Service[]> => {
   try {
-    return await apiRequest<Service[]>('/services');
+    const response = await apiRequest<ApiResponse<Service[]>>('/services');
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching services:', error);
     return [];
@@ -262,7 +254,8 @@ export const createServiceSubmission = async (submissionData: Partial<ServiceSub
 
 export const getServiceSubmissions = async (): Promise<ServiceSubmission[]> => {
   try {
-    return await apiRequest<ServiceSubmission[]>('/service-submissions');
+    const response = await apiRequest<ApiResponse<ServiceSubmission[]>>('/services/submissions');
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching service submissions:', error);
     return [];
@@ -271,7 +264,7 @@ export const getServiceSubmissions = async (): Promise<ServiceSubmission[]> => {
 
 export const updateServiceSubmissionStatus = async (id: number, status: string, catatan?: string): Promise<ApiResponse<boolean>> => {
   try {
-    return await apiRequest<ApiResponse<boolean>>(`/service-submissions/${id}/status`, {
+    return await apiRequest<ApiResponse<boolean>>(`/services/submissions/${id}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status, catatan }),
     });
@@ -281,57 +274,13 @@ export const updateServiceSubmissionStatus = async (id: number, status: string, 
   }
 };
 
-// Documents Service
-export const getDocuments = async (kategori?: string): Promise<Document[]> => {
-  try {
-    const params = kategori ? `?kategori=${encodeURIComponent(kategori)}` : '';
-    return await apiRequest<Document[]>(`/documents${params}`);
-  } catch (error) {
-    console.error('Error fetching documents:', error);
-    return [];
-  }
-};
-
-export const createDocument = async (documentData: Partial<Document>): Promise<ApiResponse<Document>> => {
-  try {
-    return await apiRequest<ApiResponse<Document>>('/documents', {
-      method: 'POST',
-      body: JSON.stringify(documentData),
-    });
-  } catch (error) {
-    console.error('Error creating document:', error);
-    return { success: false, message: 'Failed to create document' };
-  }
-};
-
 // Auth Service
 export const login = async (email: string, password: string): Promise<ApiResponse<{ admin: Admin; token: string }>> => {
   try {
-    // Fallback to demo login
-    if (email === 'admin@desa.go.id' && password === 'admin123') {
-      const demoAdmin: Admin = {
-        id: 1,
-        nama: 'Administrator',
-        email: 'admin@desa.go.id',
-        password: '',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-      
-      const token = btoa(JSON.stringify({ id: 1, email, timestamp: Date.now() }));
-      localStorage.setItem('auth_token', token);
-      
-      return {
-        success: true,
-        data: { admin: demoAdmin, token },
-        message: 'Login berhasil (demo)'
-      };
-    } else {
-      return {
-        success: false,
-        message: 'Email atau password salah'
-      };
-    }
+    return await apiRequest<ApiResponse<{ admin: Admin; token: string }>>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
   } catch (error) {
     console.error('Error during login:', error);
     return { success: false, message: 'Login failed' };
@@ -340,7 +289,7 @@ export const login = async (email: string, password: string): Promise<ApiRespons
 
 export const createAdmin = async (adminData: Partial<Admin>): Promise<ApiResponse<Admin>> => {
   try {
-    return await apiRequest<ApiResponse<Admin>>('/admin', {
+    return await apiRequest<ApiResponse<Admin>>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(adminData),
     });
@@ -353,7 +302,14 @@ export const createAdmin = async (adminData: Partial<Admin>): Promise<ApiRespons
 // Statistics Service
 export const getStatistics = async () => {
   try {
-    return await apiRequest('/statistics');
+    const response = await apiRequest<ApiResponse<any>>('/statistics');
+    return response.data || {
+      news: 0,
+      gallery: 0,
+      events: 0,
+      submissions: 0,
+      documents: 0,
+    };
   } catch (error) {
     console.error('Error fetching statistics:', error);
     return {

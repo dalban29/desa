@@ -1,6 +1,6 @@
 # Digital Village Website
 
-A complete digital village website built with React, TypeScript, MySQL, and modern animations. This project provides a comprehensive solution for village administration and public services with beautiful UI/UX and full responsiveness.
+A complete digital village website built with React, TypeScript, Node.js backend, MySQL, and modern animations. This project provides a comprehensive solution for village administration and public services with beautiful UI/UX and full responsiveness.
 
 ## Features
 
@@ -36,14 +36,15 @@ A complete digital village website built with React, TypeScript, MySQL, and mode
 
 ## Tech Stack
 
-- **Frontend**: React + TypeScript
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Node.js + Express.js
 - **Styling**: TailwindCSS
 - **Database**: MySQL
-- **Database Driver**: mysql2 with connection pooling
+- **Database Driver**: mysql2 with connection pooling (backend)
 - **Routing**: React Router DOM
 - **Forms**: React Hook Form
 - **Animations**: Framer Motion + AOS (Animate On Scroll)
-- **Security**: bcryptjs for password hashing
+- **Security**: bcryptjs for password hashing, JWT authentication
 - **Icons**: Lucide React
 
 ## Installation
@@ -55,24 +56,42 @@ A complete digital village website built with React, TypeScript, MySQL, and mode
 
 ### Setup Steps
 
-1. Install dependencies:
+1. Install frontend dependencies:
 ```bash
 npm install
 ```
 
-2. Set up MySQL database:
+2. Install backend dependencies:
 ```bash
-# Create database and import schema
-mysql -u root -p < public/database-setup.sql
+cd backend
+npm install
 ```
 
-3. Configure environment variables:
+3. Set up MySQL database:
 ```bash
+# Create database and import schema from supabase/migrations/
+# Use the latest migration file in phpMyAdmin
+```
+
+4. Configure environment variables:
+```bash
+# Frontend
 cp .env.example .env
-# Edit .env with your database credentials
+# Edit .env with your API URL
+
+# Backend
+cd backend
+cp .env.example .env
+# Edit .env with your database credentials and JWT secret
 ```
 
-4. Start the development server:
+5. Start the backend server:
+```bash
+cd backend
+npm run dev
+```
+
+6. Start the frontend development server:
 ```bash
 npm run dev
 ```
@@ -83,17 +102,35 @@ npm run dev
 Create a `.env` file in the root directory:
 
 ```env
+# Frontend
+VITE_API_URL=http://localhost:5000/api
+```
+
+Backend `.env` file:
+```env
+# Database Configuration
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=desa_digital
 DB_PORT=3306
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# JWT Configuration
+JWT_SECRET=your_super_secret_jwt_key_here
+JWT_EXPIRES_IN=24h
+
+# CORS Configuration
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### Database Setup
 
-1. **Create Database**: Import the SQL script `database-setup-complete.sql` into phpMyAdmin
-2. **Auto-initialization**: The app will automatically create tables on first run
+1. **Create Database**: Import the latest SQL script from `supabase/migrations/` into phpMyAdmin
+2. **Backend Connection**: The backend will automatically connect to the database
 3. **Sample Data**: Includes complete sample data for testing
 
 ### Admin Access
@@ -164,7 +201,8 @@ All tables include comprehensive fields for complete content management through 
 ## File Structure
 
 ```
-src/
+frontend/
+├── src/
 ├── components/
 │   ├── Layout/
 │   │   ├── Header.tsx
@@ -203,29 +241,53 @@ src/
 ├── types/
 │   └── index.ts
 └── App.tsx
+
+backend/
+├── src/
+│   ├── config/
+│   │   └── database.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── desaController.js
+│   │   └── ...
+│   ├── models/
+│   │   ├── Admin.js
+│   │   ├── DesaSettings.js
+│   │   └── ...
+│   ├── routes/
+│   │   ├── auth.js
+│   │   ├── desa.js
+│   │   └── ...
+│   ├── middleware/
+│   │   ├── auth.js
+│   │   └── validation.js
+│   └── server.js
+├── .env.example
+├── package.json
+└── README.md
 ```
 
 ## API Endpoints
 
-The application includes a complete API service layer with the following endpoints:
+The backend provides a complete REST API with the following endpoints:
 
 ### Public Endpoints
-- `GET /api/desa-settings` - Get village settings
+- `GET /api/desa/settings` - Get village settings
 - `GET /api/news` - Get paginated news
 - `GET /api/news/:slug` - Get news by slug
 - `GET /api/galleries` - Get gallery items
 - `GET /api/events` - Get events
 - `GET /api/organization` - Get organization structure
 - `GET /api/services` - Get available services
-- `POST /api/service-submissions` - Submit service application
+- `POST /api/services/submissions` - Submit service application
 
 ### Admin Endpoints
 - `POST /api/auth/login` - Admin login
-- `GET /api/admin/statistics` - Get dashboard statistics
-- `POST /api/admin/news` - Create news
-- `PUT /api/admin/news/:id` - Update news
-- `DELETE /api/admin/news/:id` - Delete news
-- And more CRUD endpoints for all content types...
+- `GET /api/statistics` - Get dashboard statistics
+- `POST /api/news` - Create news
+- `PUT /api/news/:id` - Update news
+- `DELETE /api/news/:id` - Delete news
+- And more CRUD endpoints for all content types
 
 ## Features in Detail
 
@@ -282,14 +344,25 @@ The application includes a complete API service layer with the following endpoin
 
 ## Development
 
-### Running in Development Mode
+### Running Frontend
 ```bash
+npm run dev
+```
+
+### Running Backend
+```bash
+cd backend
 npm run dev
 ```
 
 ### Building for Production
 ```bash
+# Frontend
 npm run build
+
+# Backend
+cd backend
+npm start
 ```
 
 ### Linting
@@ -313,23 +386,29 @@ The project includes comprehensive sample data:
 
 For production deployment:
 
-1. Build the project:
+1. Build the frontend:
 ```bash
 npm run build
 ```
 
-2. **Database Setup**:
+2. **Backend Setup**:
+   - Deploy backend to your server (PM2, Docker, etc.)
+   - Configure environment variables
+   - Set up reverse proxy (Nginx)
+
+3. **Database Setup**:
    - Create production MySQL database
-   - Run database-setup.sql script
+   - Import SQL migration files
    - Configure environment variables
 
-3. **Server Configuration**:
+4. **Frontend Deployment**:
+   - Deploy built files to web server
    - Configure web server (Apache/Nginx)
    - Set up SSL certificate
    - Configure domain and DNS
-   - Set up file upload directory permissions
 
-4. **Security**:
+
+5. **Security**:
    - Change default admin credentials
    - Set strong JWT secret
    - Configure firewall rules
@@ -341,6 +420,7 @@ npm run build
 - **Image optimization** with proper sizing and compression
 - **Database indexing** for faster queries
 - **Connection pooling** for efficient database usage
+- **API caching** strategies for better performance
 - **Caching strategies** for static content
 - **Minification** and compression for production builds
 
@@ -371,12 +451,22 @@ This project is open source and available under the MIT License.
 ## Support
 
 For support and questions:
+- **Backend API**: Check `backend/README.md` for API documentation
 - **Documentation**: Check this README and code comments
 - **Issues**: Create an issue in the repository
 - **Customization**: The code is well-documented for easy modification
 - **Database**: Sample data and schema are provided for reference
 
 ## Changelog
+
+### Version 2.1.0
+- ✅ Separate backend API server with Node.js + Express
+- ✅ JWT authentication system
+- ✅ Input validation with Joi
+- ✅ Security middleware (Helmet, CORS, Rate Limiting)
+- ✅ Clean separation between frontend and backend
+- ✅ RESTful API design
+- ✅ Improved error handling
 
 ### Version 2.0.0
 - ✅ Full MySQL database integration

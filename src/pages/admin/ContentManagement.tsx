@@ -101,14 +101,9 @@ const ContentManagement: React.FC = () => {
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium text-blue-900 mb-2">Fitur yang Tersedia:</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Slider beranda dengan gambar dan teks yang dapat disesuaikan</li>
-                  <li>• Statistik desa dengan ikon dan warna yang dapat diatur</li>
-                  <li>• Daftar fasilitas desa dengan informasi lengkap</li>
-                  <li>• Pengumuman dengan tingkat prioritas</li>
-                  <li>• Kontak darurat berdasarkan kategori</li>
-                  <li>• Testimoni warga dengan rating</li>
-                  <li>• FAQ dengan kategorisasi</li>
-                  <li>• Menu navigasi yang dapat disesuaikan</li>
+                  <li>• Fitur ini akan tersedia setelah backend content management diimplementasi</li>
+                  <li>• Saat ini menggunakan data statis untuk demo</li>
+                  <li>• Konten dapat dikelola melalui kode sumber</li>
                 </ul>
               </div>
             </div>

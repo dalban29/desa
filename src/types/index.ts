@@ -126,33 +126,11 @@ export interface ServiceSubmission {
   updated_at: Date;
 }
 
-export interface Document {
-  id: number;
-  judul: string;
-  deskripsi: string;
-  file_path: string;
-  kategori: string;
-  ukuran: number;
-  tipe_file: string;
-  tahun: number;
-  nomor_dokumen: string;
-  tanggal_terbit: Date;
-  status: 'active' | 'archived';
-  download_count: number;
-  created_at: Date;
-  updated_at: Date;
-}
-
 export interface Admin {
   id: number;
   nama: string;
   email: string;
   password: string;
-  role: 'super_admin' | 'admin' | 'editor';
-  foto: string;
-  telepon: string;
-  status: 'active' | 'inactive';
-  last_login: Date;
   created_at: Date;
   updated_at: Date;
 }

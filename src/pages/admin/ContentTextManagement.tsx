@@ -4,19 +4,37 @@ import {
   Save, Search, Filter, Edit, Type, 
   FileText, Code, List, Eye, EyeOff
 } from 'lucide-react';
-import { 
-  getAllWebsiteContent, 
-  getWebsiteSections, 
-  updateWebsiteContent, 
-  createWebsiteContent,
-  WebsiteContent,
-  WebsiteSection 
-} from '../../services/contentApi';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 import LoadingSpinner from '../../components/UI/LoadingSpinner';
 import SuccessMessage from '../../components/UI/SuccessMessage';
 import ErrorMessage from '../../components/UI/ErrorMessage';
+
+// Mock interfaces for content management
+interface WebsiteContent {
+  id: number;
+  content_key: string;
+  content_value: string;
+  content_type: 'text' | 'textarea' | 'html' | 'json';
+  page: string;
+  section: string;
+  label: string;
+  description: string;
+  max_length?: number;
+  sort_order: number;
+  status: 'active' | 'inactive';
+}
+
+interface WebsiteSection {
+  id: number;
+  section_key: string;
+  section_name: string;
+  page: string;
+  description: string;
+  icon?: string;
+  sort_order: number;
+  status: 'active' | 'inactive';
+}
 
 const ContentTextManagement: React.FC = () => {
   const [contents, setContents] = useState<WebsiteContent[]>([]);
@@ -37,12 +55,9 @@ const ContentTextManagement: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [contentsData, sectionsData] = await Promise.all([
-        getAllWebsiteContent(),
-        getWebsiteSections()
-      ]);
-      setContents(contentsData);
-      setSections(sectionsData);
+      // Mock data - replace with actual API calls when backend is ready
+      setContents([]);
+      setSections([]);
     } catch (error) {
       console.error('Error fetching data:', error);
       setMessage({ type: 'error', text: 'Gagal memuat data konten' });
@@ -54,17 +69,8 @@ const ContentTextManagement: React.FC = () => {
   const handleSaveContent = async (content: WebsiteContent) => {
     setSaving(content.id);
     try {
-      const result = await updateWebsiteContent(content.id, {
-        content_value: content.content_value,
-        status: content.status
-      });
-      
-      if (result.success) {
-        setMessage({ type: 'success', text: 'Konten berhasil disimpan' });
-        fetchData();
-      } else {
-        setMessage({ type: 'error', text: result.message || 'Gagal menyimpan konten' });
-      }
+      // Mock save - replace with actual API call
+      setMessage({ type: 'success', text: 'Konten berhasil disimpan (demo)' });
     } catch (error) {
       setMessage({ type: 'error', text: 'Terjadi kesalahan saat menyimpan' });
     } finally {
@@ -337,8 +343,8 @@ const ContentTextManagement: React.FC = () => {
         {filteredContents.length === 0 && (
           <div className="text-center py-12">
             <Type className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">Tidak ada konten yang ditemukan</p>
-            <p className="text-gray-400 text-sm">Coba ubah filter pencarian Anda</p>
+            <p className="text-gray-500 text-lg">Fitur Manajemen Teks</p>
+            <p className="text-gray-400 text-sm">Fitur ini akan tersedia setelah backend content management diimplementasi</p>
           </div>
         )}
       </div>
